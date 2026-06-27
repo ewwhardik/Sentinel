@@ -4,7 +4,7 @@
 Clone this repository:
 
 Bash
-git clone https://github.com/YOUR_USERNAME/Sentinel.git
+git clone https://github.com/ewwhardik/Sentinel.git
 Open your browser's extension management page (e.g., chrome://extensions).
 
 Enable Developer mode.
