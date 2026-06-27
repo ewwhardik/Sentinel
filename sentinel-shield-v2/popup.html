@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel Shield</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg-primary: #070b14;
+    --bg-secondary: #0d1421;
+    --bg-card: #111827;
+    --bg-glass: rgba(255,255,255,0.04);
+    --bg-glass-hover: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.08);
+    --border-accent: rgba(0,240,150,0.3);
+    --text-primary: #e8edf5;
+    --text-secondary: #8a9ab8;
+    --text-muted: #4a5a72;
+    --accent-green: #00f096;
+    --accent-blue: #3b82f6;
+    --accent-yellow: #f59e0b;
+    --accent-orange: #f97316;
+    --accent-red: #ef4444;
+    --accent-purple: #8b5cf6;
+    --accent-cyan: #06b6d4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 440px;
+    min-height: 560px;
+    max-height: 620px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: linear-gradient(135deg, #080e1c 0%, #0d1829 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 14px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent-green) 30%, var(--accent-blue) 70%, transparent 100%);
+    opacity: 0.7;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -50%; width: 200%; height: 100%;
+    background: radial-gradient(ellipse at 50% -40%, rgba(0,240,150,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .logo-ring {
+    width: 34px; height: 34px;
+    border: 2px solid var(--accent-green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 14px rgba(0,240,150,0.35), inset 0 0 8px rgba(0,240,150,0.1);
+    animation: logoPulse 3s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .logo-ring svg { width: 17px; height: 17px; fill: var(--accent-green); }
+  @keyframes logoPulse {
+    0%,100% { box-shadow: 0 0 14px rgba(0,240,150,0.35), inset 0 0 8px rgba(0,240,150,0.1); }
+    50% { box-shadow: 0 0 24px rgba(0,240,150,0.6), inset 0 0 12px rgba(0,240,150,0.2); }
+  }
+  .header-info { flex: 1; min-width: 0; }
+  .header-title {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #e8edf5, var(--accent-green));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .header-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+  .header-actions { display: flex; align-items: center; gap: 6px; }
+  .scan-btn {
+    background: linear-gradient(135deg, rgba(0,240,150,0.15), rgba(59,130,246,0.15));
+    border: 1px solid rgba(0,240,150,0.3);
+    border-radius: 7px;
+    color: var(--accent-green);
+    font-size: 11px; font-weight: 600;
+    padding: 5px 11px; cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .scan-btn:hover { background: linear-gradient(135deg, rgba(0,240,150,0.25), rgba(59,130,246,0.25)); transform: translateY(-1px); }
+  .scan-btn.scanning { animation: scanPulse 1s ease-in-out infinite; }
+  @keyframes scanPulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    background: #080d18;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1; min-width: 50px;
+    padding: 8px 4px 7px;
+    text-align: center;
+    font-size: 9px; font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.18s;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+  .tab.active { color: var(--accent-green); border-bottom-color: var(--accent-green); background: rgba(0,240,150,0.04); }
+  .tab-icon { font-size: 12px; display: block; margin-bottom: 2px; }
+
+  /* ===== PANELS ===== */
+  .panel { display: none; padding: 12px 13px; overflow-y: auto; flex: 1; }
+  .panel.active { display: block; }
+  .panels-container { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* ===== SCORE CARD ===== */
+  .score-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .score-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, var(--score-glow, rgba(0,240,150,0.07)) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .score-header { display: flex; align-items: center; gap: 12px; }
+  .score-circle {
+    width: 70px; height: 70px; position: relative; flex-shrink: 0;
+  }
+  .score-svg { width: 70px; height: 70px; transform: rotate(-90deg); }
+  .score-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 6; }
+  .score-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1.3s cubic-bezier(.4,2,.6,1); }
+  .score-number {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+  .score-label { font-size: 8px; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 1px; }
+  .score-info { flex: 1; min-width: 0; }
+  .trust-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+    margin-bottom: 5px; border: 1px solid currentColor;
+    text-transform: uppercase;
+  }
+  .score-domain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-secondary);
+    word-break: break-all;
+  }
+  .score-meta { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ===== RISK METER ===== */
+  .risk-meter { margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--border); }
+  .meter-label-row { display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); margin-bottom: 5px; }
+  .meter-track {
+    height: 7px; border-radius: 4px;
+    background: linear-gradient(90deg, #ef4444 0%, #f97316 30%, #f59e0b 55%, #00f096 100%);
+    position: relative;
+  }
+  .meter-cursor {
+    position: absolute; top: 50%;
+    width: 13px; height: 13px;
+    background: white; border: 2.5px solid rgba(0,0,0,0.4);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: left 1.3s cubic-bezier(.4,2,.6,1);
+    box-shadow: 0 0 10px rgba(255,255,255,0.6);
+  }
+
+  /* ===== STATS GRID ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 10px;
+    display: flex; align-items: center; gap: 7px;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: rgba(255,255,255,0.14); }
+  .stat-icon { font-size: 15px; flex-shrink: 0; }
+  .stat-value { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .stat-name { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ===== SECTION TITLE ===== */
+  .section-title {
+    font-size: 9px; font-weight: 700;
+    color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 8px; padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-title::before {
+    content: '';
+    width: 3px; height: 10px;
+    background: linear-gradient(180deg, var(--accent-green), var(--accent-blue));
+    border-radius: 2px; flex-shrink: 0;
+  }
+
+  /* ===== ISSUE ITEMS ===== */
+  .issue-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 8px 10px; border-radius: 8px;
+    margin-bottom: 5px; border: 1px solid transparent;
+    font-size: 11px; line-height: 1.45;
+  }
+  .issue-item.safe { background: rgba(0,240,150,0.05); border-color: rgba(0,240,150,0.15); }
+  .issue-item.warning { background: rgba(249,115,22,0.07); border-color: rgba(249,115,22,0.2); }
+  .issue-item.danger { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.2); }
+  .issue-item.info { background: rgba(59,130,246,0.07); border-color: rgba(59,130,246,0.2); }
+  .issue-icon { font-size: 13px; flex-shrink: 0; line-height: 1.3; }
+  .issue-text { color: var(--text-secondary); flex: 1; }
+  .issue-text strong { color: var(--text-primary); display: block; margin-bottom: 1px; font-weight: 600; font-size: 11px; }
+
+  /* ===== JS ITEMS ===== */
+  .js-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px; border-radius: 6px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    margin-bottom: 5px; font-size: 11px;
+    transition: border-color 0.15s;
+  }
+  .js-item:hover { border-color: rgba(255,255,255,0.13); }
+  .js-item .label { color: var(--text-secondary); display: flex; align-items: center; gap: 7px; }
+  .js-item .label span { font-size: 13px; }
+  .badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 10px;
+  }
+  .badge.ok { background: rgba(0,240,150,0.12); color: var(--accent-green); }
+  .badge.warn { background: rgba(249,115,22,0.14); color: var(--accent-orange); }
+  .badge.bad { background: rgba(239,68,68,0.14); color: var(--accent-red); }
+  .badge.info { background: rgba(59,130,246,0.14); color: var(--accent-blue); }
+  .badge.purple { background: rgba(139,92,246,0.14); color: var(--accent-purple); }
+
+  /* ===== PRIVACY ===== */
+  .priv-score-wrap {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  }
+  .priv-score-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+  .priv-score-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .priv-score-bar { height: 7px; border-radius: 4px; background: var(--border); overflow: hidden; }
+  .priv-score-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+  .tracker-category {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 11px; margin-bottom: 6px;
+  }
+  .tracker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .tracker-name { font-size: 11px; font-weight: 600; }
+  .tracker-count { font-size: 10px; color: var(--text-muted); }
+  .tracker-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tracker-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text-muted);
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 6px;
+  }
+
+  /* ===== COOKIES ===== */
+  .cookie-item {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; margin-bottom: 5px;
+  }
+  .cookie-name { font-size: 11px; color: var(--text-primary); font-weight: 600; word-break: break-all; font-family: 'JetBrains Mono', monospace; }
+  .cookie-meta { font-size: 9px; color: var(--text-muted); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .cookie-tag {
+    font-size: 9px; padding: 1px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; border: 1px solid;
+  }
+  .cookie-tag.tracking { background: rgba(239,68,68,0.1); color: var(--accent-red); border-color: rgba(239,68,68,0.25); }
+  .cookie-tag.session { background: rgba(59,130,246,0.1); color: var(--accent-blue); border-color: rgba(59,130,246,0.25); }
+  .cookie-tag.persistent { background: rgba(249,115,22,0.1); color: var(--accent-orange); border-color: rgba(249,115,22,0.25); }
+  .cookie-tag.secure { background: rgba(0,240,150,0.1); color: var(--accent-green); border-color: rgba(0,240,150,0.25); }
+  .cookie-tag.httponly { background: rgba(139,92,246,0.1); color: var(--accent-purple); border-color: rgba(139,92,246,0.25); }
+
+  /* ===== EXTENSIONS ===== */
+  .ext-item {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 9px; padding: 10px 12px; margin-bottom: 7px;
+  }
+  .ext-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+  .ext-name { font-size: 12px; font-weight: 600; flex: 1; }
+  .risk-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.05em;
+    padding: 2px 8px; border-radius: 10px; text-transform: uppercase; flex-shrink: 0;
+  }
+  .risk-LOW { background: rgba(0,240,150,0.12); color: var(--accent-green); }
+  .risk-MEDIUM { background: rgba(245,158,11,0.12); color: var(--accent-yellow); }
+  .risk-HIGH { background: rgba(239,68,68,0.12); color: var(--accent-red); }
+  .ext-meta { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+  .ext-perms { display: flex; flex-wrap: wrap; gap: 4px; }
+  .perm-tag {
+    font-size: 9px; font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 5px; color: var(--text-muted);
+  }
+  .perm-tag.high { border-color: rgba(239,68,68,0.3); color: var(--accent-red); background: rgba(239,68,68,0.06); }
+  .ext-risk-note { margin-top: 6px; font-size: 10px; color: var(--accent-orange); }
+
+  /* ===== ALERTS ===== */
+  .alert-item {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 10px 11px; border-radius: 9px; margin-bottom: 7px;
+    border: 1px solid;
+  }
+  .alert-item.safe { background: rgba(0,240,150,0.05); border-color: rgba(0,240,150,0.18); }
+  .alert-item.warn { background: rgba(249,115,22,0.06); border-color: rgba(249,115,22,0.2); }
+  .alert-item.danger { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.22); }
+  .alert-icon { font-size: 18px; flex-shrink: 0; }
+  .alert-title { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+  .alert-desc { font-size: 10px; color: var(--text-secondary); line-height: 1.4; }
+  .alert-time { font-size: 9px; color: var(--text-muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+
+  /* ===== ABOUT ===== */
+  .about-hero {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 16px;
+    margin-bottom: 10px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .about-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,240,150,0.08) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .about-logo {
+    width: 52px; height: 52px;
+    border: 2px solid var(--accent-green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    box-shadow: 0 0 20px rgba(0,240,150,0.4);
+  }
+  .about-logo svg { width: 26px; height: 26px; fill: var(--accent-green); }
+  .about-name {
+    font-size: 16px; font-weight: 800; letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #e8edf5, var(--accent-green));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 3px;
+  }
+  .about-version { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .about-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+
+  .about-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    margin-bottom: 8px;
+  }
+  .about-card-title { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .about-dev {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .dev-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #1d2f4a, #0d1829);
+    border: 2px solid var(--border-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .dev-info { flex: 1; }
+  .dev-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .dev-role { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  .about-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 11px; border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    text-decoration: none; color: var(--text-secondary);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    margin-bottom: 6px;
+  }
+  .about-link:last-child { margin-bottom: 0; }
+  .about-link:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); color: var(--text-primary); transform: translateX(2px); }
+  .about-link .link-icon { font-size: 15px; flex-shrink: 0; }
+  .about-link .link-arrow { margin-left: auto; opacity: 0.4; font-size: 11px; }
+  .about-link .link-label { color: var(--text-muted); font-size: 9px; display: block; margin-top: 1px; }
+
+  .org-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px;
+    background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25);
+    font-size: 11px; font-weight: 600; color: var(--accent-purple);
+    margin-top: 8px;
+  }
+
+  .feature-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;
+  }
+  .feature-item {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 7px; padding: 8px 9px;
+    font-size: 10px; color: var(--text-secondary);
+  }
+  .feature-item span { font-size: 13px; display: block; margin-bottom: 3px; }
+
+  /* ===== MISC ===== */
+  .empty { text-align: center; padding: 28px 0; color: var(--text-muted); font-size: 12px; }
+  .empty .icon { font-size: 30px; margin-bottom: 7px; }
+  .empty .sub { font-size: 10px; margin-top: 4px; color: var(--text-muted); opacity: 0.7; }
+
+  .status-bar {
+    background: #080d18; border-top: 1px solid var(--border);
+    padding: 5px 13px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 9px; color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .status-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent-green); display: inline-block; margin-right: 4px;
+    animation: blink 2.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+
+  .report-btn {
+    width: 100%; padding: 9px;
+    background: linear-gradient(135deg, rgba(0,240,150,0.08), rgba(59,130,246,0.08));
+    border: 1px solid rgba(0,240,150,0.25);
+    border-radius: 8px; color: var(--accent-green);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; letter-spacing: 0.04em;
+    margin-top: 8px;
+  }
+  .report-btn:hover { background: linear-gradient(135deg, rgba(0,240,150,0.14), rgba(59,130,246,0.14)); transform: translateY(-1px); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-ring">
+    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+  </div>
+  <div class="header-info">
+    <div class="header-title">SENTINEL SHIELD</div>
+    <div class="header-url" id="headerUrl">Initializing scanner...</div>
+  </div>
+  <div class="header-actions">
+    <button class="scan-btn" id="scanBtn" onclick="rescan()">↻ Rescan</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">
+    <span class="tab-icon">🛡️</span>DASH
+  </div>
+  <div class="tab" data-tab="threats" onclick="switchTab('threats')">
+    <span class="tab-icon">🔍</span>THREATS
+  </div>
+  <div class="tab" data-tab="js" onclick="switchTab('js')">
+    <span class="tab-icon">⚙️</span>SCRIPTS
+  </div>
+  <div class="tab" data-tab="privacy" onclick="switchTab('privacy')">
+    <span class="tab-icon">👁️</span>PRIVACY
+  </div>
+  <div class="tab" data-tab="cookies" onclick="switchTab('cookies')">
+    <span class="tab-icon">🍪</span>COOKIES
+  </div>
+  <div class="tab" data-tab="extensions" onclick="switchTab('extensions')">
+    <span class="tab-icon">🔌</span>EXT
+  </div>
+  <div class="tab" data-tab="alerts" onclick="switchTab('alerts')">
+    <span class="tab-icon">🚨</span>ALERTS
+  </div>
+  <div class="tab" data-tab="about" onclick="switchTab('about')">
+    <span class="tab-icon">ℹ️</span>ABOUT
+  </div>
+</div>
+
+<!-- PANELS CONTAINER -->
+<div class="panels-container">
+
+<!-- PANEL: DASHBOARD -->
+<div class="panel active" id="panel-dashboard">
+  <div class="score-card" id="scoreCard">
+    <div class="score-header">
+      <div class="score-circle">
+        <svg class="score-svg" viewBox="0 0 70 70">
+          <circle class="score-track" cx="35" cy="35" r="29"/>
+          <circle class="score-fill" id="scoreFill" cx="35" cy="35" r="29"
+            stroke-dasharray="182.2" stroke-dashoffset="182.2" stroke="var(--accent-green)"/>
+        </svg>
+        <div class="score-number">
+          <span id="scoreNum" style="color:var(--accent-green)">--</span>
+          <span class="score-label">/ 100</span>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="trust-badge" id="trustBadge" style="color:var(--text-muted);border-color:var(--text-muted)44">SCANNING…</div>
+        <div class="score-domain" id="scoreDomain">Loading...</div>
+        <div class="score-meta" id="scoreMeta">Analyzing website security</div>
+      </div>
+    </div>
+    <div class="risk-meter">
+      <div class="meter-label-row">
+        <span>⛔ DANGER</span><span>⚠ SUSPICIOUS</span><span>🟡 LOW RISK</span><span>✅ SAFE</span>
+      </div>
+      <div class="meter-track">
+        <div class="meter-cursor" id="meterCursor" style="left:50%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🔒</div>
+      <div>
+        <div class="stat-value" id="stat-https">--</div>
+        <div class="stat-name">Connection</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📜</div>
+      <div>
+        <div class="stat-value" id="stat-cert">--</div>
+        <div class="stat-name">Certificate</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👁️</div>
+      <div>
+        <div class="stat-value" id="stat-trackers">--</div>
+        <div class="stat-name">Trackers</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div>
+        <div class="stat-value" id="stat-threats">--</div>
+        <div class="stat-name">Threats</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🍪</div>
+      <div>
+        <div class="stat-value" id="stat-cookies">--</div>
+        <div class="stat-name">Cookies</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚙️</div>
+      <div>
+        <div class="stat-value" id="stat-scripts">--</div>
+        <div class="stat-name">Scripts</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">URL Analysis</div>
+  <div id="urlIssuesList"></div>
+
+  <button class="report-btn" onclick="generateReport()">📋 Generate Full Security Report</button>
+</div>
+
+<!-- PANEL: THREATS -->
+<div class="panel" id="panel-threats">
+  <div class="section-title">Active Threats</div>
+  <div id="threatsList"><div class="empty"><div class="icon">⏳</div>Awaiting scan data...<div class="sub">Scan a page to detect threats</div></div></div>
+
+  <div class="section-title" style="margin-top:12px">Content Security Checks</div>
+  <div id="contentIssuesList"></div>
+
+  <div class="section-title" style="margin-top:12px">Advanced Security Checks</div>
+  <div id="advancedChecksList"></div>
+</div>
+
+<!-- PANEL: JS/SCRIPTS -->
+<div class="panel" id="panel-js">
+  <div class="section-title">JavaScript Behavior Analysis</div>
+  <div id="jsList"><div class="empty"><div class="icon">⏳</div>Awaiting script data...<div class="sub">Script analysis runs after page load</div></div></div>
+
+  <div class="section-title" style="margin-top:12px">Script Statistics</div>
+  <div id="jsStats"></div>
+
+  <div class="section-title" style="margin-top:12px">Suspicious Findings</div>
+  <div id="jsDetails"></div>
+</div>
+
+<!-- PANEL: PRIVACY -->
+<div class="panel" id="panel-privacy">
+  <div class="priv-score-wrap">
+    <div class="priv-score-header">
+      <div>
+        <div style="font-size:11px;font-weight:700;margin-bottom:2px">Privacy Score</div>
+        <div style="font-size:10px;color:var(--text-muted)">Based on trackers &amp; fingerprinting</div>
+      </div>
+      <div class="priv-score-val" id="privacyScoreNum" style="color:var(--accent-green)">--</div>
+    </div>
+    <div class="priv-score-bar">
+      <div class="priv-score-fill" id="privacyScoreFill" style="width:0%;background:var(--accent-green)"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Fingerprinting Detection</div>
+  <div id="fpList"><div class="empty" style="padding:12px 0"><div class="icon">⏳</div>Awaiting analysis...</div></div>
+
+  <div class="section-title" style="margin-top:12px">Tracker Breakdown</div>
+  <div id="trackerList"><div class="empty" style="padding:12px 0"><div class="icon">⏳</div>Awaiting tracker data...</div></div>
+
+  <div class="section-title" style="margin-top:12px">Third-Party Scripts</div>
+  <div id="thirdPartyList"></div>
+</div>
+
+<!-- PANEL: COOKIES -->
+<div class="panel" id="panel-cookies">
+  <div class="section-title">Cookie Analysis</div>
+  <div id="cookieStats"></div>
+  <div class="section-title" style="margin-top:10px">Cookie Details</div>
+  <div id="cookieList"><div class="empty"><div class="icon">⏳</div>Loading cookies...</div></div>
+</div>
+
+<!-- PANEL: EXTENSIONS -->
+<div class="panel" id="panel-extensions">
+  <div class="section-title">Installed Browser Extensions</div>
+  <div id="extensionList"><div class="empty"><div class="icon">⏳</div>Loading extensions...</div></div>
+</div>
+
+<!-- PANEL: ALERTS -->
+<div class="panel" id="panel-alerts">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div class="section-title" style="margin:0;border:none;padding:0">Security Alerts</div>
+    <button onclick="clearAlerts()" style="font-size:10px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:4px;border:1px solid var(--border)">Clear</button>
+  </div>
+  <div id="alertsList"><div class="empty"><div class="icon">🔕</div>No alerts yet<div class="sub">Alerts appear as pages are scanned</div></div></div>
+</div>
+
+<!-- PANEL: ABOUT -->
+<div class="panel" id="panel-about">
+  <div class="about-hero">
+    <div class="about-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+    </div>
+    <div class="about-name">SENTINEL SHIELD</div>
+    <div class="about-version">v2.0.0 — Advanced Security Scanner</div>
+    <div class="about-desc">Real-time website threat detection, scam identification, JavaScript analysis, privacy auditing and cookie inspection — all in one extension.</div>
+    <div class="org-badge">🏢 poop Organization India</div>
+  </div>
+
+  <div class="about-card">
+    <div class="about-card-title">Developer</div>
+    <div class="about-dev">
+      <div class="dev-avatar">👨‍💻</div>
+      <div class="dev-info">
+        <div class="dev-name">Hardik</div>
+        <div class="dev-role">Lead Developer · Security Engineer</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-card">
+    <div class="about-card-title">Links</div>
+    <a class="about-link" id="githubLink" href="#" onclick="openLink('https://github.com/ewwhardik')">
+      <span class="link-icon">🐙</span>
+      <div>
+        <div>GitHub — @ewwhardik</div>
+        <span class="link-label">github.com/ewwhardik</span>
+      </div>
+      <span class="link-arrow">↗</span>
+    </a>
+    <a class="about-link" id="orgLink" href="#" onclick="openLink('https://poop.org.in')">
+      <span class="link-icon">🌐</span>
+      <div>
+        <div>poop Organization India</div>
+        <span class="link-label">poop.org.in</span>
+      </div>
+      <span class="link-arrow">↗</span>
+    </a>
+  </div>
+
+  <div class="about-card">
+    <div class="about-card-title">Features</div>
+    <div class="feature-grid">
+      <div class="feature-item"><span>🔗</span>URL & Domain Analysis</div>
+      <div class="feature-item"><span>🛡️</span>Scam Detection</div>
+      <div class="feature-item"><span>⚙️</span>JS Behavior Analysis</div>
+      <div class="feature-item"><span>👁️</span>Tracker Detection</div>
+      <div class="feature-item"><span>🍪</span>Cookie Inspector</div>
+      <div class="feature-item"><span>🔌</span>Extension Auditor</div>
+      <div class="feature-item"><span>🖐️</span>Fingerprint Detection</div>
+      <div class="feature-item"><span>📋</span>Security Reports</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:10px;font-size:10px;color:var(--text-muted)">
+    Made with ❤️ by Hardik · poop Organization India · 2024
+  </div>
+</div>
+
+</div><!-- end panels-container -->
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span><span class="status-dot"></span>Sentinel Shield Active</span>
+  <span id="lastScanTime">Last scan: —</span>
+  <span id="connectionStatus">— Checking...</span>
+</div>
+
+<script src="src/popup.js"></script>
+</body>
+</html>
